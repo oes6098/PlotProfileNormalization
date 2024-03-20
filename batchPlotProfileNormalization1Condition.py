@@ -1,7 +1,8 @@
 import os
 import pandas as pd
-from tkinter import filedialog
 import numpy as np
+import matplotlib.pyplot as plt
+from tkinter import filedialog
 
 # Select directory containing the folders
 dirPath = filedialog.askdirectory(title='Select directory containing folders')
@@ -45,8 +46,33 @@ for foldername in os.listdir(dirPath):
             df[column_name] = Ynorm_interp
             print(f"Added column '{column_name}' to dataframe.")
 
-# Write the dataframe to an Excel file
+# Save the dataframe to an Excel file in the selected directory
 excelFilePath = os.path.join(dirPath, 'normalized_data.xlsx')
 df.to_excel(excelFilePath, index=False)
 print(f"Dataframe saved to Excel file: {excelFilePath}")
+
+# Compute mean and 95% CI
+mean_intensity = df.mean(axis=1)  # Mean across different cells
+std_intensity = df.std(axis=1)     # Standard deviation across different cells
+n = df.shape[1]                    # Number of cells
+ci = 1.96 * (std_intensity / np.sqrt(n))  # 95% CI
+
+# Plot mean signal intensity with error bars and a connecting line
+plt.figure(figsize=(10, 6))  # Adjust figure size
+plt.errorbar(df.index, mean_intensity, yerr=ci, fmt='o-', capsize=5, markersize=5)
+plt.xlabel('Distance (0-100)', fontsize=14, fontweight='bold')
+plt.ylabel('Signal Intensity', fontsize=14, fontweight='bold')
+plt.title('Signal Intensity along Axon with 95% CI', fontsize=16, fontweight='bold')
+plt.xticks(fontsize=12)  # Increase x-axis tick font size
+plt.yticks(fontsize=12)  # Increase y-axis tick font size
+plt.grid(True)
+plt.xlim(0)  # Set x-axis to start at 0
+
+# Save the plot as a vector image file (EPS) in the same directory as the Excel file
+plotFilePath = os.path.join(dirPath, 'signal_intensity_plot.eps')
+plt.savefig(plotFilePath, format='eps')
+print(f"Plot saved as vector image file (EPS): {plotFilePath}")
+
+
+plt.show()
 
