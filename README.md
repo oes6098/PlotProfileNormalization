@@ -8,3 +8,6 @@ Batch normalize and compile plot profile outputs from Fiji
 3. Now you have a compilation of normalized signal/pixel intensity with the same amount of X values
 
 Y values are normalized by subtracting minimum Y value from all Y-values then dividing by the range of Y (difference between the maximum and minimum values of Y). The same process is down for X. Then interpolation is performed to ensure both X and Y data points have exactly 100 points
+
+batchPlotProfileNormalization1Condition is for 1 condition of data, expected to be in 1 folder
+batchPlotProfileNormalizationAllConditions is for all conditions of data (expected to be in different folders)
