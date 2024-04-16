@@ -88,20 +88,26 @@ for i, condition_folder in enumerate(condition_folders):
     print(f"Plot saved as vector image file (EPS): {plotFilePath}")
 
     plt.show()
-
 # Create a plot showing different conditions in different colors
 plt.figure(figsize=(10, 6))  # Adjust figure size
 
-# Plot each condition's mean signal intensity with different colors
+# Plot each condition's mean signal intensity with 95% CI and different colors
 for condition, df in dfs.items():
     mean_intensity = df.mean(axis=1)
-    plt.plot(df.index, mean_intensity, label=condition)
+    std_intensity = df.std(axis=1)
+    n = df.shape[1]
+    ci = 1.96 * (std_intensity / np.sqrt(n))  # 95% CI
+    plt.errorbar(df.index, mean_intensity, yerr=ci, fmt='o-', capsize=5, markersize=5, label=condition)
 
 plt.xlabel('Distance (0-100)', fontsize=14, fontweight='bold')
 plt.ylabel('Mean Signal Intensity', fontsize=14, fontweight='bold')
-plt.title('Mean Signal Intensity along Axon for Different Conditions', fontsize=16, fontweight='bold')
+plt.title('Distance from Soma', fontsize=16, fontweight='bold')
 plt.xticks(fontsize=12)  # Increase x-axis tick font size
 plt.yticks(fontsize=12)  # Increase y-axis tick font size
-plt.grid(True)
 plt.legend()  # Show legend
+plt.grid(False)  # Remove grid
 plt.show()
+
+plotFilePath = os.path.join(dirPath, f'combined_signal_intensity_plot_condition.pdf')
+plt.savefig(plotFilePath, format='pdf')
+print(f"Plot saved as vector image file (PDF): {plotFilePath}")
