@@ -12,6 +12,9 @@ print(f"Selected directory: {dirPath}")
 df = pd.DataFrame()
 print("Initialized empty dataframe.")
 
+# Initialize an empty list to store 95th percentile values
+percentile_list = []
+
 # Number of points after normalization
 num_points = 100
 
@@ -46,6 +49,12 @@ for foldername in os.listdir(dirPath):
             df[column_name] = Ynorm_interp
             print(f"Added column '{column_name}' to dataframe.")
 
+            # Calculate the 95th percentile
+            ninety_fifth_percentile = np.percentile(Ynorm_interp, 95)
+            
+            # Append the filename and 95th percentile to the list
+            percentile_list.append({'File': filename, '95th Percentile': ninety_fifth_percentile})
+
 # Save the dataframe to an Excel file in the selected directory
 excelFilePath = os.path.join(dirPath, 'normalized_data.xlsx')
 df.to_excel(excelFilePath, index=False)
@@ -68,11 +77,16 @@ plt.yticks(fontsize=12)  # Increase y-axis tick font size
 plt.grid(True)
 plt.xlim(0)  # Set x-axis to start at 0
 
-# Save the plot as a vector image file (EPS) in the same directory as the Excel file
-plotFilePath = os.path.join(dirPath, 'signal_intensity_plot.eps')
-plt.savefig(plotFilePath, format='eps')
-print(f"Plot saved as vector image file (EPS): {plotFilePath}")
-
+# Save the plot as a PDF file
+plotFilePath = os.path.join(dirPath, 'signal_intensity_plot.pdf')
+plt.savefig(plotFilePath, format='pdf')
+print(f"Plot saved as vector image file (PDF): {plotFilePath}")
 
 plt.show()
 
+# Convert the list of dictionaries to a DataFrame
+percentile_df = pd.DataFrame(percentile_list)
+
+# Save the dataframe with individual file percentiles to a CSV file
+percentile_df.to_excel(os.path.join(dirPath, 'individual_percentiles.xlsx'), index=False)
+print("Individual percentiles saved to Excel file.")

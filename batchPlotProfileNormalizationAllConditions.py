@@ -26,6 +26,9 @@ for i, condition_folder in enumerate(condition_folders):
     df = pd.DataFrame()
     print("Initialized empty dataframe.")
 
+    # Initialize an empty list to store 95th percentile values for each file in the current condition folder
+    percentile_list = []
+
     # Loop through each folder in the condition folder
     for foldername in os.listdir(conditionFolderPath):
         folderPath = os.path.join(conditionFolderPath, foldername)
@@ -57,13 +60,27 @@ for i, condition_folder in enumerate(condition_folders):
                 df[column_name] = Ynorm_interp
                 print(f"Added column '{column_name}' to dataframe.")
 
-    # Save the dataframe to the dictionary with the condition folder name as key
-    dfs[condition_folder] = df
+                # Calculate the 95th percentile
+                ninety_fifth_percentile = np.percentile(Ynorm_interp, 95)
+                
+                # Append the filename and 95th percentile to the list
+                percentile_list.append({'File': filename, '95th Percentile': ninety_fifth_percentile})
+
 
     # Save the dataframe to an Excel file in the condition folder
     excelFilePath = os.path.join(conditionFolderPath, f'normalized_data_condition_{i}.xlsx')
     df.to_excel(excelFilePath, index=False)
     print(f"Dataframe saved to Excel file: {excelFilePath}")
+
+    # Convert the list of dictionaries to a DataFrame
+    percentile_df = pd.DataFrame(percentile_list)
+
+    # Save the dataframe with individual file percentiles to a CSV file
+    percentile_df.to_excel(os.path.join(conditionFolderPath, f'individual_95percentiles_{i}.xlsx'), index=False)
+    print(f"Individual percentiles saved to Excel file: {excelFilePath}")
+
+    # Store the dataframe in the dictionary with the condition folder name as key
+    dfs[condition_folder] = df
 
     # Compute mean and 95% CI
     mean_intensity = df.mean(axis=1)  # Mean across different cells
